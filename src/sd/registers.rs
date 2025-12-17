@@ -9,7 +9,8 @@ bitfield! {
     pub device_size_multiplier, _: 49, 47;
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct NumBlocks {
     device_size: u32,
     multiplier: u16,

@@ -5,7 +5,8 @@ pub mod transfer;
 
 pub const BLOCK_SIZE: usize = 512;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Card {
     Sdsc(u8),
     Sdhc,

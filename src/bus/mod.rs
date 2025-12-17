@@ -2,7 +2,7 @@ pub mod spi;
 
 use crate::sd::{BLOCK_SIZE, registers::Csd, response::R1Status, transfer};
 
-#[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Error<BUS> {
     BUS(BUS),
     /// Probably no card

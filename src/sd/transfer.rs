@@ -1,4 +1,5 @@
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum TokenError {
     /// not token
     NotToken,
@@ -14,7 +15,8 @@ pub enum TokenError {
     CardLocked,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum Token {
     Start = 0xFE,

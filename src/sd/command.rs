@@ -2,7 +2,8 @@ use core::mem;
 
 use super::response;
 
-#[derive(Copy, Clone, Debug, Default, PartialEq)]
+#[derive(Copy, Clone, Default, PartialEq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct SendInterfaceCondition {
     pub pcie_1_2v_suppport: bool, // PCIe 1.2V
     pub pcie_availability: bool,
@@ -29,7 +30,8 @@ pub type Rca = u16;
 pub type Address = u32;
 
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum AppCommand {
     SDSendOpCond(bool), // host-capability-support
     ReadOCR,
@@ -60,7 +62,8 @@ impl AppCommand {
 
 #[expect(clippy::enum_variant_names)]
 #[repr(u8)]
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Command {
     GoIdleState,
     SendIfCond(SendInterfaceCondition),

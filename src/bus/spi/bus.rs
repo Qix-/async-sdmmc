@@ -12,7 +12,7 @@ use crate::sd::{
 
 use crate::bus;
 
-#[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Error<SPI, CS> {
     SPI(SPI),
     CS(CS),
