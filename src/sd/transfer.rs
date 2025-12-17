@@ -1,6 +1,4 @@
-use displaydoc::Display;
-
-#[derive(Copy, Clone, Debug, Display)]
+#[derive(Copy, Clone, Debug)]
 pub enum TokenError {
     /// not token
     NotToken,
@@ -15,8 +13,6 @@ pub enum TokenError {
     /// card locked
     CardLocked,
 }
-
-impl core::error::Error for TokenError {}
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 #[repr(u8)]

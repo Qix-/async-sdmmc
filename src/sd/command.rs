@@ -16,16 +16,16 @@ impl SendInterfaceCondition {
     }
 }
 
-impl Into<u32> for SendInterfaceCondition {
-    fn into(self) -> u32 {
-        (self.pcie_1_2v_suppport as u32) << 15
-            | (self.pcie_availability as u32) << 14
-            | (self.voltage_supplied as u32) << 8
-            | self.check_pattern as u32
+impl From<SendInterfaceCondition> for u32 {
+    fn from(val: SendInterfaceCondition) -> Self {
+        (val.pcie_1_2v_suppport as u32) << 15
+            | (val.pcie_availability as u32) << 14
+            | (val.voltage_supplied as u32) << 8
+            | val.check_pattern as u32
     }
 }
 
-pub type RCA = u16;
+pub type Rca = u16;
 pub type Address = u32;
 
 #[repr(u8)]
@@ -58,18 +58,19 @@ impl AppCommand {
     }
 }
 
+#[expect(clippy::enum_variant_names)]
 #[repr(u8)]
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Command {
     GoIdleState,
     SendIfCond(SendInterfaceCondition),
-    SendCSD(RCA),
+    SendCSD(Rca),
     StopTransmission,
     ReadSingleBlock(Address),
     ReadMultipleBlock(Address),
     WriteBlock(Address),
     WriteMultipleBlock(Address),
-    AppCommand(RCA),
+    AppCommand(Rca),
     App(AppCommand),
 }
 
@@ -125,10 +126,10 @@ fn crc7(data: &[u8]) -> u8 {
     crc << 1 | 1
 }
 
-impl Into<[u8; 6]> for Command {
-    fn into(self) -> [u8; 6] {
-        let bytes = u32::to_be_bytes(self.argument());
-        let mut buffer = [0x40 | self.index(), bytes[0], bytes[1], bytes[2], bytes[3], 0];
+impl From<Command> for [u8; 6] {
+    fn from(val: Command) -> Self {
+        let bytes = u32::to_be_bytes(val.argument());
+        let mut buffer = [0x40 | val.index(), bytes[0], bytes[1], bytes[2], bytes[3], 0];
         buffer[5] = crc7(&buffer[..5]);
         buffer
     }

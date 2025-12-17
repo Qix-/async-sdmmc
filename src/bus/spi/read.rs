@@ -7,10 +7,10 @@ use embedded_timers::{clock::Clock, instant::Instant};
 use crate::{
     bus::Read,
     sd::{
-        command::Command,
-        registers::CSD,
-        transfer::{Token, TokenError},
         BLOCK_SIZE,
+        command::Command,
+        registers::Csd,
+        transfer::{Token, TokenError},
     },
 };
 
@@ -23,7 +23,6 @@ where
     C: Clock<Instant = I>,
     I: Instant,
 {
-    #[cfg_attr(not(feature = "async"), deasync::deasync)]
     pub(crate) async fn read_block(&mut self, block: &mut [u8]) -> Result<(), BUSError<E, F>> {
         let deadline = self.clock.now() + Duration::from_millis(100);
         let token = loop {
@@ -50,7 +49,6 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "async"), deasync::deasync)]
 impl<E, F, SPI, CS, C, I> Read for Bus<SPI, CS, C>
 where
     SPI: Transfer<Error = E>,
@@ -60,7 +58,7 @@ where
 {
     type Error = Error<E, F>;
 
-    async fn read_csd(&mut self) -> Result<CSD, BUSError<E, F>> {
+    async fn read_csd(&mut self) -> Result<Csd, BUSError<E, F>> {
         self.tx(&[0xFF; 5]).await?;
         self.select()?;
         self.send_command(Command::SendCSD(0)).await?;
@@ -68,7 +66,7 @@ where
         self.read_block(&mut buffer).await?;
         self.deselect()?;
         self.tx(&[0xFF]).await?; // Extra byte to release MISO
-        CSD::try_from(u128::from_be_bytes(buffer)).ok_or(BUSError::Generic)
+        Csd::try_from(u128::from_be_bytes(buffer)).ok_or(BUSError::Generic)
     }
 
     async fn read<'a, B>(&mut self, address: u32, blocks: B) -> Result<(), BUSError<E, F>>

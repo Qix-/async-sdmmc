@@ -1,15 +1,11 @@
 #![doc = include_str!("../README.md")]
 #![doc(hidden)]
-#![cfg_attr(not(any(test, feature = "std")), no_std)]
+#![cfg_attr(not(test), no_std)]
 
-extern crate alloc;
-#[cfg(feature = "logging")]
-#[macro_use]
-extern crate log;
-#[cfg(feature = "spidev")]
-extern crate spidev;
+#[cfg(feature = "defmt")]
+use defmt::trace;
 
-#[cfg(not(feature = "logging"))]
+#[cfg(not(feature = "defmt"))]
 #[macro_use]
 mod logging {
     #[macro_export]
@@ -24,17 +20,16 @@ mod sd;
 
 use bus::Error;
 pub use sd::registers::NumBlocks;
-use sd::{registers::CSD, BLOCK_SIZE};
+use sd::{BLOCK_SIZE, registers::Csd};
 
 pub struct SD<BUS> {
     bus: BUS,
     card: sd::Card,
-    csd: CSD,
+    csd: Csd,
 }
 
-type LBA = u32;
+type Lba = u32;
 
-#[cfg_attr(not(feature = "async"), deasync::deasync)]
 impl<E, BUS> SD<BUS>
 where
     BUS: bus::Read<Error = E> + bus::Write<Error = E> + bus::Bus<Error = E>,
@@ -46,7 +41,7 @@ where
         result.map(|csd| Self { bus, card, csd })
     }
 
-    pub fn csd(&self) -> CSD {
+    pub fn csd(&self) -> Csd {
         self.csd
     }
 
@@ -54,7 +49,7 @@ where
         f(&mut self.bus)
     }
 
-    pub async fn read<'a, B>(&mut self, address: LBA, blocks: B) -> Result<(), Error<E>>
+    pub async fn read<'a, B>(&mut self, address: Lba, blocks: B) -> Result<(), Error<E>>
     where
         B: core::iter::ExactSizeIterator<Item = &'a mut [u8; BLOCK_SIZE]>,
     {
@@ -67,7 +62,7 @@ where
         self.bus.after().and(result)
     }
 
-    pub async fn write<'a, B>(&mut self, address: LBA, blocks: B) -> Result<(), Error<E>>
+    pub async fn write<'a, B>(&mut self, address: Lba, blocks: B) -> Result<(), Error<E>>
     where
         B: core::iter::ExactSizeIterator<Item = &'a [u8; BLOCK_SIZE]>,
     {

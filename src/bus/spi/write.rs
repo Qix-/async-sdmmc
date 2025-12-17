@@ -7,15 +7,14 @@ use embedded_timers::{clock::Clock, instant::Instant};
 use crate::{
     bus::Write,
     sd::{
+        BLOCK_SIZE,
         command::Command,
         transfer::{Response, Token, TokenError},
-        BLOCK_SIZE,
     },
 };
 
 use super::bus::{BUSError, Bus, Error, Transfer};
 
-#[cfg_attr(not(feature = "async"), deasync::deasync)]
 impl<E, F, SPI, CS, C, I> Write for Bus<SPI, CS, C>
 where
     SPI: Transfer<Error = E>,

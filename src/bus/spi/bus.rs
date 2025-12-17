@@ -1,11 +1,7 @@
 use core::slice;
 use core::time::Duration;
 
-use derive_more::Display;
 use embedded_hal::digital::OutputPin;
-#[cfg(not(feature = "async"))]
-use embedded_hal::spi;
-#[cfg(all(feature = "async", feature = "embedded-hal-async"))]
 use embedded_hal_async::spi::SpiBus;
 use embedded_timers::{clock::Clock, instant::Instant};
 
@@ -16,23 +12,16 @@ use crate::sd::{
 
 use crate::bus;
 
-#[derive(Debug, Display)]
+#[derive(Debug)]
 pub enum Error<SPI, CS> {
-    #[display("spi error: {_0}")]
     SPI(SPI),
-    #[display("chip select error: {_0}")]
     CS(CS),
 }
-
-impl<SPI: core::error::Error, CS: core::error::Error> core::error::Error for Error<SPI, CS> {}
 
 pub type BUSError<SPI, CS> = bus::Error<Error<SPI, CS>>;
 
 pub trait Transfer {
     type Error;
-    #[cfg(not(feature = "async"))]
-    fn transfer(&mut self, tx: &[u8], rx: &mut [u8]) -> Result<(), Self::Error>;
-    #[cfg(feature = "async")]
     fn transfer(
         &mut self,
         tx: &[u8],
@@ -40,16 +29,6 @@ pub trait Transfer {
     ) -> impl Future<Output = Result<(), Self::Error>>;
 }
 
-#[cfg(not(feature = "async"))]
-impl<E, T: spi::SpiBus<u8, Error = E>> Transfer for T {
-    type Error = E;
-
-    fn transfer(&mut self, tx: &[u8], rx: &mut [u8]) -> Result<(), Self::Error> {
-        self.transfer(rx, tx).map(|_| ())
-    }
-}
-
-#[cfg(all(feature = "async", feature = "embedded-hal-async"))]
 impl<E, T: SpiBus<u8, Error = E>> Transfer for T {
     type Error = E;
 
@@ -91,7 +70,6 @@ where
     }
 }
 
-#[cfg_attr(not(feature = "async"), deasync::deasync)]
 impl<E, F, SPI, CS, C, I> Bus<SPI, CS, C>
 where
     SPI: Transfer<Error = E>,

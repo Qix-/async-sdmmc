@@ -8,9 +8,9 @@ use embedded_timers::{clock::Clock, instant::Instant};
 use crate::{
     delay::Delay,
     sd::{
+        Card,
         command::{AppCommand, Command, SendInterfaceCondition},
         response::{self, R1Status},
-        Card,
     },
 };
 pub use bus::{BUSError, Bus, Transfer};
@@ -22,7 +22,6 @@ where
     C: Clock<Instant = I>,
     I: Instant,
 {
-    #[cfg_attr(not(feature = "async"), deasync::deasync)]
     async fn go_idle(&mut self, delay: &mut impl Delay) -> Result<(), BUSError<E, F>> {
         // SD v1.0 won't be considered
         for _ in 0..32 {
@@ -40,7 +39,6 @@ where
     }
 
     /// Before init, set SPI clock rate between 100KHZ and 400KHZ
-    #[cfg_attr(not(feature = "async"), deasync::deasync)]
     pub async fn init(&mut self, mut delay: impl Delay) -> Result<Card, BUSError<E, F>> {
         // Supply minimum of 74 clock cycles without CS asserted.
         self.deselect()?;
@@ -77,12 +75,12 @@ where
         }
 
         trace!("Read OCR");
-        let mut card = Card::SDSC(version);
+        let mut card = Card::Sdsc(version);
         if version > 1 {
             let r = self.send_app_command(AppCommand::ReadOCR).await?;
             let r3 = response::R3(r.ex);
             if r3.card_capacity_status() {
-                card = Card::SDHC;
+                card = Card::Sdhc;
             }
         }
         self.deselect()?;

@@ -25,9 +25,9 @@ impl NumBlocks {
     }
 }
 
-impl Into<u64> for NumBlocks {
-    fn into(self) -> u64 {
-        self.device_size as u64 * self.multiplier as u64
+impl From<NumBlocks> for u64 {
+    fn from(val: NumBlocks) -> Self {
+        val.device_size as u64 * val.multiplier as u64
     }
 }
 
@@ -67,14 +67,14 @@ impl CSDv3 {
 }
 
 #[derive(Copy, Clone)]
-pub enum CSD {
+pub enum Csd {
     V1(CSDv1),
     V2(CSDv2),
     V3(CSDv3),
 }
 
-impl CSD {
-    pub fn try_from(value: u128) -> Option<CSD> {
+impl Csd {
+    pub fn try_from(value: u128) -> Option<Csd> {
         let csd = match CSDv1(value).version() {
             0 => Self::V1(CSDv1(value)),
             1 => Self::V2(CSDv2(value)),

@@ -7,15 +7,12 @@ pub const BLOCK_SIZE: usize = 512;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Card {
-    SDSC(u8),
-    SDHC,
+    Sdsc(u8),
+    Sdhc,
 }
 
 impl Card {
     pub fn high_capacity(self) -> bool {
-        match self {
-            Self::SDSC(_) => false,
-            _ => true,
-        }
+        !matches!(self, Self::Sdsc(_))
     }
 }
