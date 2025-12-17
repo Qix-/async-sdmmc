@@ -3,7 +3,13 @@
 #![cfg_attr(not(test), no_std)]
 
 #[cfg(feature = "defmt")]
-use defmt::trace;
+#[macro_use]
+mod logging {
+    #[macro_export]
+    macro_rules! trace {
+        ($($arg:tt)*) => { ::defmt::trace!($($arg)*) };
+    }
+}
 
 #[cfg(not(feature = "defmt"))]
 #[macro_use]
