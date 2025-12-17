@@ -100,7 +100,7 @@ where
 
     pub(crate) async fn send_command(&mut self, cmd: Command) -> Result<Response, BUSError<E, F>> {
         let bytes: [u8; 6] = cmd.into();
-        trace!("Send CMD {:?} bytes {=[u8]:X}", cmd, &bytes);
+        trace!("Send CMD {:?} bytes {:X}", cmd, &bytes);
         self.tx(&bytes[..]).await?;
 
         if cmd == Command::StopTransmission {
