@@ -1,5 +1,4 @@
 #![doc = include_str!("../README.md")]
-#![doc(hidden)]
 #![cfg_attr(not(test), no_std)]
 
 #[cfg(feature = "defmt")]
